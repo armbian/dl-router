@@ -40,3 +40,7 @@ def status():
 @app.route('/<path:path>')
 def catch_all(path):
     return redirect(get_redirect(path, "127.0.0.1"), 302)
+
+if __name__ == "__main__":
+    # Only for debugging while developing
+    app.run(host='0.0.0.0', debug=False, port=80)
