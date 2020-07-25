@@ -1,5 +1,5 @@
 APP_PATH=/home/lane/GIT/dl-router/app
-USERDATA_PATH=/home/lane/GIT/dl-router/userdata.csv
+USERDATA_PATH=/var/www/www.armbian.com/wp-content/csv/userdata.csv
 LISTEN_PORT=25080
 CONTAINER_NAME=redirect
 
