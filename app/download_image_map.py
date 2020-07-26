@@ -18,18 +18,19 @@ class Parser():
     def transform_csv_data(self, data):
         transformed = {}
         key = ""
+        row_counter = 0
         for line in data:
             try:
-                key = '/'.join(line[0:2])
-                transformed[key] = '/'.join(line[2:5])
+                row_counter = row_counter + 1
+                key = line[0]
+                transformed[key] = line[1]
             except IndexError as e:
-                print("Missing fields in data '{0}'. Error: '{1}'".format(line, e))
-                break
+                print("userdata.csv line {}: Malformed or Missing fields in data '{}'. Error: '{}'".format(row_counter, line, e))
         return transformed
 
     def import_csv(self):
         with open(self.csv_file) as f:
-            csvreader = csv.reader(f, delimiter='/')
+            csvreader = csv.reader(f, delimiter='|')
             data = list(csvreader)
         return data
 

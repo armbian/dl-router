@@ -21,7 +21,7 @@ app = Flask(__name__)
 def get_redirect(path, IP):
     split_path = path.split('/')
     if len(split_path) == 2:
-        key = "{}/{}".format(split_path[0], split_path[1])
+        key = "/{}/{}".format(split_path[0], split_path[1])
         new_path = dl_map.get(key, path)
         return "{}/{}".format(mirror.next(), new_path)
     if path == '':
