@@ -1,6 +1,7 @@
 from flask import (
         Flask,
-        redirect
+        redirect,
+        request
 )
 # from markupsafe import escape
 from download_image_map import Parser
@@ -16,6 +17,13 @@ dl_map = parser.parsed_data
 
 
 app = Flask(__name__)
+
+
+def get_ip():
+    if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
+        return request.environ['REMOTE_ADDR']
+    else:
+        return request.environ['HTTP_X_FORWARDED_FOR']
 
 
 def get_redirect(path, IP):
@@ -46,7 +54,7 @@ def reload():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
-    return redirect(get_redirect(path, "127.0.0.1"), 302)
+    return redirect(get_redirect(path, get_ip()), 302)
 
 
 if __name__ == "__main__":
