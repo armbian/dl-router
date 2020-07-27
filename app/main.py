@@ -31,12 +31,12 @@ def get_redirect(path, IP):
     if len(split_path) == 2:
         key = "{}/{}".format(split_path[0], split_path[1])
         new_path = dl_map.get(key, path)
-        return "{}/{}".format(mirror.next(), new_path)
+        return "{}{}".format(mirror.next(), new_path)
     if path == '':
         return mirror.next()
     else:
         print("path: {}".format(path))
-        return "{}/{}".format(mirror.next(), path)
+        return "{}{}".format(mirror.next(), path)
 
 
 @app.route('/status')
