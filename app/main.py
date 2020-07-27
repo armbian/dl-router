@@ -4,17 +4,13 @@ from flask import (
         request
 )
 # from markupsafe import escape
-from download_image_map import Parser
 from mirror_list import Mirror
 
-all_mirrors = ["https://mirrors.netix.net/armbian/dl/",
-               "https://mirrors.dotsrc.org/armbian-dl/",
-               "https://mirrors.tuna.tsinghua.edu.cn/armbian-releases/",
-               "https://imola.armbian.com/"]
+all_mirrors = ["https://mirrors.netix.net/armbian/apt/",
+               "https://mirrors.dotsrc.org/armbian-apt/",
+               "https://mirrors.tuna.tsinghua.edu.cn/armbian/"]
 
 mirror = Mirror(all_mirrors)
-parser = Parser('userdata.csv')
-dl_map = parser.parsed_data
 
 
 app = Flask(__name__)
@@ -28,28 +24,15 @@ def get_ip():
 
 
 def get_redirect(path, IP):
-    split_path = path.split('/')
-    if len(split_path) == 2:
-        key = "{}/{}".format(split_path[0], split_path[1])
-        new_path = dl_map.get(key, path)
-        return "{}{}".format(mirror.next(), new_path)
     if path == '':
         return mirror.next()
     else:
-        print("path: {}".format(path))
         return "{}{}".format(mirror.next(), path)
 
 
 @app.route('/status')
 def status():
     return "OK"
-
-
-@app.route('/reload')
-def reload():
-    global dl_map
-    dl_map = parser.reload()
-    return dl_map
 
 
 @app.route('/', defaults={'path': ''})
