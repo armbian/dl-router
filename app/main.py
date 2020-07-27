@@ -9,6 +9,7 @@ from mirror_list import Mirror
 
 all_mirrors = ["https://mirrors.netix.net/armbian/dl/",
                "https://mirrors.dotsrc.org/armbian-dl/",
+               "https://mirrors.tuna.tsinghua.edu.cn/armbian-releases/",
                "https://imola.armbian.com/"]
 
 mirror = Mirror(all_mirrors)
