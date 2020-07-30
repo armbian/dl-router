@@ -7,17 +7,11 @@ from flask import (
 from download_image_map import Parser
 from mirror_list import Mirror
 
-all_mirrors = ["https://mirrors.netix.net/armbian/dl/",
-               "https://mirrors.dotsrc.org/armbian-dl/",
-               "https://mirrors.tuna.tsinghua.edu.cn/armbian-releases/",
-               "https://imola.armbian.com/"]
 
-mirror = Mirror(all_mirrors)
-parser = Parser('userdata.csv')
-dl_map = parser.parsed_data
-
-
-app = Flask(__name__)
+def load_mirrors():
+    with open('mirrors.conf', 'r') as f:
+        all_mirrors = f.readlines()
+        return all_mirrors
 
 
 def get_ip():
@@ -40,6 +34,14 @@ def get_redirect(path, IP):
         return "{}{}".format(mirror.next(), path)
 
 
+mirror = Mirror(load_mirrors())
+parser = Parser('userdata.csv')
+dl_map = parser.parsed_data
+
+
+app = Flask(__name__)
+
+
 @app.route('/status')
 def status():
     return "OK"
@@ -47,6 +49,9 @@ def status():
 
 @app.route('/reload')
 def reload():
+    load_mirrors()
+    global mirror
+    mirror = Mirror(load_mirrors())
     global dl_map
     dl_map = parser.reload()
     return dl_map
