@@ -10,7 +10,7 @@ from mirror_list import Mirror
 
 def load_mirrors():
     with open('mirrors.conf', 'r') as f:
-        all_mirrors = f.readlines()
+        all_mirrors = f.read().splitlines()
         return all_mirrors
 
 
