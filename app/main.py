@@ -6,7 +6,8 @@ from flask import (
 # from markupsafe import escape
 from mirror_list import Mirror
 
-all_mirrors = ["http://mirrors.netix.net/armbian/apt/",
+all_mirrors = ["https://mirrors.netix.net/armbian/apt/",
+               "https://us.mirrors.fossho.st/armbian/apt/",
                "https://mirrors.dotsrc.org/armbian-apt/"]
 
 mirror = Mirror(all_mirrors)
