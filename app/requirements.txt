@@ -1,0 +1,5 @@
+flask
+#boto3
+python-dotenv
+uwsgi
+ruamel.yaml

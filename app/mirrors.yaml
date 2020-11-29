@@ -1,0 +1,26 @@
+---
+apt:
+  AS:
+    - https://mirrors.tuna.tsinghua.edu.cn/armbian/
+  NA:
+    - https://armbian.tnahosting.net/dl/
+    - https://us.mirrors.fossho.st/armbian/dl
+  EU:
+    #    - https://minio.k-space.ee/armbian/dl/
+    - https://uk.mirrors.fossho.st/armbian/dl/
+    - https://armbian.systemonachip.net/dl/
+    - http://mirrors.netix.net/armbian/dl/
+    - https://mirrors.dotsrc.org/armbian-dl/
+
+dl:
+  AS:
+    - https://mirrors.tuna.tsinghua.edu.cn/armbian/
+  NA:
+    - https://armbian.tnahosting.net/dl/
+    - https://us.mirrors.fossho.st/dl/
+  EU:
+    - https://minio.k-space.ee/armbian/dl/
+    - https://uk.mirrors.fossho.st/armbian/dl/
+    - https://armbian.systemonachip.net/dl/
+    - http://mirrors.netix.net/armbian/dl/
+    - https://mirrors.dotsrc.org/armbian-dl/
