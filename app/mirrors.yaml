@@ -1,0 +1,14 @@
+---
+mode: redirect
+mirrors:
+  AS:
+    - https://mirrors.tuna.tsinghua.edu.cn/armbian/
+  NA:
+    - https://armbian.tnahosting.net/apt/
+    - https://us.mirrors.fossho.st/armbian/armbian/
+  EU:
+    #    - https://minio.k-space.ee/armbian/apt/
+    - https://uk.mirrors.fossho.st/armbian/apt/
+    - https://armbian.systemonachip.net/apt/
+    - http://mirrors.netix.net/armbian/apt/
+    - https://mirrors.dotsrc.org/armbian-apt/
