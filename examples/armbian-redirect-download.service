@@ -12,7 +12,7 @@ Environment=CONTAINER_NAME=redirect
 Restart=always
 Restart=on-failure
 RestartSec=5s
-ExecStart=/usr/bin/docker run --rm -a STDOUT -a STDERR -v ${APP_PATH}:/app -v ${USERDATA_PATH}:/app/userdata.csv -v ${MIRRORS_YAML_PATH}:/app/mirrors.conf -p 127.0.0.1:${LISTEN_PORT}:80 --name ${CONTAINER_NAME} tiangolo/uwsgi-nginx-flask
+ExecStart=/usr/bin/docker run --rm -a STDOUT -a STDERR -v ${APP_PATH}:/app -v ${USERDATA_PATH}:/app/userdata.csv -v ${MIRRORS_YAML_PATH}:/app/mirrors.yaml -p 127.0.0.1:${LISTEN_PORT}:80 --name ${CONTAINER_NAME} tiangolo/uwsgi-nginx-flask
 ExecStop=/usr/bin/docker stop -t 2 ${CONTAINER_NAME}
 
 [Install]
