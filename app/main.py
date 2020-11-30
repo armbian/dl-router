@@ -2,6 +2,7 @@
 
 import uwsgi
 import json
+import logging
 
 from flask import (
         Flask,
@@ -22,23 +23,26 @@ def load_mirrors():
     """ open mirrors file and return contents """
 #    with open('mirrors.conf', 'r') as row:
 #        all_mirrors=row.read().splitlines()
+    global mode
     yaml = YAML()
     yaml.indent(mapping=2, sequence=4, offset=2)
     yaml.preserve_quotes = True
 
     with open('mirrors.yaml', 'r') as f:
         config = yaml.load(f)
-    return config['apt']
+    mode = config['mode']
+    print("using mode: {}".format(mode))
+    return config['mirrors']
 
 
 def reload_all():
     """ reload mirror and redirect map files """
-    load_mirrors()
-    global mirror
+    global mode
     mirror = Mirror(load_mirrors())
-    global dl_map
-    dl_map = parser.reload()
-    return dl_map
+    if mode == "dl_map":
+        global dl_map
+        dl_map = parser.reload()
+    return mirror
 
 
 def get_ip():
@@ -48,22 +52,37 @@ def get_ip():
     return request.environ['HTTP_X_FORWARDED_FOR']
 
 
-def get_redirect(path, IP, region=None):
+def get_region(IP):
+    """ this is where we geoip and return region code """
+    return None
+
+
+def get_redirect(path, IP):
     """ get redirect based on path and IP(future) """
+    global mode
+    global dl_map
+    region = get_region(IP)
     split_path = path.split('/')
-    if len(split_path) == 2:
+    if split_path[0] == "region":
+        if split_path[1] in mirror.all_regions():
+            region = split_path[1]
+        del split_path[0:2]
+        path = "/{}".format("/".join(split_path))
+    print("path: {}".format(path))
+    if mode == "dl_map" and len(split_path) == 2:
         key = "{}/{}".format(split_path[0], split_path[1])
         new_path = dl_map.get(key, path)
-        return "{}{}".format(mirror.next(), new_path)
+        return "{}{}".format(mirror.next(region), new_path)
     if path == '':
-        return mirror.next()
+        return mirror.next(region)
     print("path: {}".format(path))
-    return "{}{}".format(mirror.next(), path)
+    return "{}{}".format(mirror.next(region), path)
 
 
 mirror = Mirror(load_mirrors())
-parser = Parser('userdata.csv')
-dl_map = parser.parsed_data
+if mode == "dl_map":
+    parser = Parser('userdata.csv')
+    dl_map = parser.parsed_data
 
 
 app = Flask(__name__)
@@ -79,13 +98,28 @@ def status():
 def signal_reload():
     """ trigger graceful reload via uWSGI """
     uwsgi.reload()
-    return dl_map
+    return "reloded"
 
 
 @ app.route('/mirrors')
 def show_mirrors():
     """ return all_mirrors in json format to requestor """
     return json.dumps(mirror.all_mirrors())
+
+
+@ app.route('/regions')
+def show_regions():
+    """ return all_regions in json format to requestor """
+    return json.dumps(mirror.all_regions())
+
+
+@ app.route('/dl_map')
+def show_dl_map():
+    global mode
+    global dl_map
+    if mode == "dl_map":
+        return json.dumps(dl_map)
+    return "no map. in direct mode"
 
 
 @ app.route('/', defaults={'path': ''})
