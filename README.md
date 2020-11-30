@@ -55,7 +55,7 @@ Shows all mirror regions
 `/dl_map`
 shows download map for images
 
-`/region/_CODE_/`
+`/region/REGIONCODE/`
 will redirect to desired configurd regions:  
 NA - north america
 EU - Europe
