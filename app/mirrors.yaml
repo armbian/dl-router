@@ -1,28 +1,14 @@
 ---
-#mode: redirect
-#mirrors:
-#  AS:
-#    - https://mirrors.tuna.tsinghua.edu.cn/armbian/
-#  NA:
-#    - https://armbian.tnahosting.net/apt/
-#    - https://us.mirrors.fossho.st/armbian/armbian/
-#  EU:
-#    #    - https://minio.k-space.ee/armbian/apt/
-#    - https://uk.mirrors.fossho.st/armbian/apt/
-#    - https://armbian.systemonachip.net/apt/
-#    - http://mirrors.netix.net/armbian/apt/
-#    - https://mirrors.dotsrc.org/armbian-apt/
-
-mode: dl_map      
+mode: redirect
 mirrors:
   AS:
     - https://mirrors.tuna.tsinghua.edu.cn/armbian/
   NA:
-    - https://armbian.tnahosting.net/dl/
-    - https://us.mirrors.fossho.st/dl/
+    - https://armbian.tnahosting.net/apt/
+    - https://us.mirrors.fossho.st/armbian/armbian/
   EU:
-    - https://minio.k-space.ee/armbian/dl/
-    - https://uk.mirrors.fossho.st/armbian/dl/
-    - https://armbian.systemonachip.net/dl/
-    - http://mirrors.netix.net/armbian/dl/
-    - https://mirrors.dotsrc.org/armbian-dl/
+    #    - https://minio.k-space.ee/armbian/apt/
+    - https://uk.mirrors.fossho.st/armbian/apt/
+    - https://armbian.systemonachip.net/apt/
+    - http://mirrors.netix.net/armbian/apt/
+    - https://mirrors.dotsrc.org/armbian-apt/

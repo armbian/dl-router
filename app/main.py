@@ -67,7 +67,7 @@ def get_redirect(path, IP):
         if split_path[1] in mirror.all_regions():
             region = split_path[1]
         del split_path[0:2]
-        path = "/{}".format("/".join(split_path))
+        path = "{}".format("/".join(split_path))
     print("path: {}".format(path))
     if mode == "dl_map" and len(split_path) == 2:
         key = "{}/{}".format(split_path[0], split_path[1])
