@@ -11,6 +11,8 @@ from flask import (
 )
 # from markupsafe import escape
 from download_image_map import Parser
+from geolite2 import geolite2
+reader = geolite2.reader()
 from mirror_list import Mirror
 from ruamel.yaml import YAML
 from ruamel.yaml.scalarstring import (
@@ -54,7 +56,12 @@ def get_ip():
 
 def get_region(IP):
     """ this is where we geoip and return region code """
-    return None
+    match = reader.get(IP)
+    conti = match['continent']['code']
+    if conti in ("EU","NA","AS",):
+        return conti
+    else:
+        return "EU"
 
 
 def get_redirect(path, IP):
