@@ -3,3 +3,5 @@ flask
 python-dotenv
 uwsgi
 ruamel.yaml
+maxminddb
+maxminddb-geolite2
