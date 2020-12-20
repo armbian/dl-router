@@ -1,4 +1,5 @@
 flask
+uwsgi
 #boto3
 python-dotenv
 uwsgi
