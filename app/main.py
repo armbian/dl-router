@@ -1,8 +1,7 @@
 """ flask app to redirect request to appropriate armbian mirror and image """
 
-import uwsgi
 import json
-import logging
+import uwsgi
 
 from flask import (
         Flask,
@@ -12,17 +11,16 @@ from flask import (
 # from markupsafe import escape
 from download_image_map import Parser
 from mirror_list import Mirror
+from geolite2 import geolite2
 from ruamel.yaml import YAML
-from ruamel.yaml.scalarstring import (
-    FoldedScalarString,
-    LiteralScalarString,
-)
+# from ruamel.yaml.scalarstring import (
+#     FoldedScalarString,
+#     LiteralScalarString,
+# )
 
 
 def load_mirrors():
     """ open mirrors file and return contents """
-#    with open('mirrors.conf', 'r') as row:
-#        all_mirrors=row.read().splitlines()
     global mode
     yaml = YAML()
     yaml.indent(mapping=2, sequence=4, offset=2)
@@ -54,11 +52,22 @@ def get_ip():
 
 def get_region(IP):
     """ this is where we geoip and return region code """
-    return None
+    try:
+        match = reader.get(IP)
+        conti = match['continent']['code']
+# FIXME Get Contient List from Configuration File
+        if conti in ("EU", "NA", "AS"):
+            print("Match {} to continent {}".format(IP, conti))
+            return conti
+    except:
+        print("match failure for IP: {}".format(IP))
+        print(json.dumps(match))
+    else:
+        return None
 
 
 def get_redirect(path, IP):
-    """ get redirect based on path and IP(future) """
+    """ get redirect based on path and IP """
     global mode
     global dl_map
     region = get_region(IP)
@@ -68,14 +77,12 @@ def get_redirect(path, IP):
             region = split_path[1]
         del split_path[0:2]
         path = "{}".format("/".join(split_path))
-    print("path: {}".format(path))
     if mode == "dl_map" and len(split_path) == 2:
         key = "{}/{}".format(split_path[0], split_path[1])
         new_path = dl_map.get(key, path)
         return "{}{}".format(mirror.next(region), new_path)
     if path == '':
         return mirror.next(region)
-    print("path: {}".format(path))
     return "{}{}".format(mirror.next(region), path)
 
 
@@ -84,7 +91,7 @@ if mode == "dl_map":
     parser = Parser('userdata.csv')
     dl_map = parser.parsed_data
 
-
+reader = geolite2.reader()
 app = Flask(__name__)
 
 
@@ -98,7 +105,7 @@ def status():
 def signal_reload():
     """ trigger graceful reload via uWSGI """
     uwsgi.reload()
-    return "reloded"
+    return "reloding"
 
 
 @ app.route('/mirrors')
@@ -122,9 +129,14 @@ def show_dl_map():
     return "no map. in direct mode"
 
 
+@ app.route('/geoip')
+def show_geoip():
+    return json.dumps(reader.get(get_ip()))
+
 @ app.route('/', defaults={'path': ''})
 @ app.route('/<path:path>')
 def catch_all(path):
+    """ default app route for redirect """
     return redirect(get_redirect(path, get_ip()), 302)
 
 
