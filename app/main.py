@@ -63,7 +63,7 @@ def get_region(IP):
         print("match failure for IP: {}".format(IP))
         print(json.dumps(match))
     else:
-        return "None"
+        return None
 
 
 def get_redirect(path, IP):
