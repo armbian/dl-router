@@ -91,6 +91,7 @@ def status():
     resp.headers['X-Client-IP'] = get_ip()
     return resp
 
+
 @app.route('/reload')
 def signal_reload():
     """ trigger graceful reload via uWSGI """
