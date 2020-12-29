@@ -1,0 +1,4 @@
+.vscode
+__pycache__
+app/mirrors.yaml
+app/userdata.csv

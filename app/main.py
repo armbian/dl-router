@@ -1,140 +1,131 @@
 """ flask app to redirect request to appropriate armbian mirror and image """
 
 import json
-import uwsgi
 
+#import uwsgi
 from flask import (
         Flask,
         redirect,
-        request
+        request,
+        Response,
 )
-# from markupsafe import escape
+from geolite2 import geolite2
 from download_image_map import Parser
 from mirror_list import Mirror
-from geolite2 import geolite2
-from ruamel.yaml import YAML
-# from ruamel.yaml.scalarstring import (
-#     FoldedScalarString,
-#     LiteralScalarString,
-# )
 
 
-def load_mirrors():
-    """ open mirrors file and return contents """
-    global mode
-    yaml = YAML()
-    yaml.indent(mapping=2, sequence=4, offset=2)
-    yaml.preserve_quotes = True
+mirror = Mirror()
+if mirror.mode == "dl_map":
+    parser = Parser('userdata.csv')
+    DL_MAP = parser.parsed_data
+else:
+    DL_MAP = None
 
-    with open('mirrors.yaml', 'r') as f:
-        config = yaml.load(f)
-    mode = config['mode']
-    print("using mode: {}".format(mode))
-    return config['mirrors']
+geolite_reader = geolite2.reader()
+app = Flask(__name__)
 
-
-def reload_all():
-    """ reload mirror and redirect map files """
-    global mode
-    mirror = Mirror(load_mirrors())
-    if mode == "dl_map":
-        global dl_map
-        dl_map = parser.reload()
-    return mirror
-
+# def reload_all():
+#     """ reload mirror and redirect map files """
+#     mirror = Mirror()
+#     if mirror.mode == "dl_map":
+#         global dl_map
+#         dl_map = parser.reload()
+#     return mirror
 
 def get_ip():
-    """ returns requestor's IP by parsersing proxy  headers """
-    if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
-        return request.environ['REMOTE_ADDR']
-    return request.environ['HTTP_X_FORWARDED_FOR']
+    """ returns client IP by parsing proxy headers
+        if they don't exist, return the actual client IP address """
+    return request.environ.get('HTTP_X_FORWARDED_FOR',
+                               request.environ.get('REMOTE_ADDR'),
+                              )
 
 
-def get_region(IP):
+def get_region(client_ip, reader=geolite_reader, continents=mirror.continents):
     """ this is where we geoip and return region code """
+    if client_ip.startswith(("192.168.", "10.")):
+        print(f"Local IP address: {client_ip}")
+        return None
     try:
-        match = reader.get(IP)
-        conti = match['continent']['code']
-# FIXME Get Contient List from Configuration File
-        if conti in ("EU", "NA", "AS"):
-            print("Match {} to continent {}".format(IP, conti))
+        match = reader.get(client_ip)
+        if not match:
+            print(f"match failure for IP: {client_ip}")
+            return None
+        # matches are a dict where we want match["continent"]["code"] = "EU"
+        conti = match.get("continent", {}).get("code")
+        if conti in continents:
+            print(f"Match {client_ip} to continent {conti}")
             return conti
-    except:
-        print("match failure for IP: {}".format(IP))
+    # pylint: disable=broad-except
+    except Exception as error_message:
+        print(f"match failure for IP: {client_ip} (Error: {error_message}")
         print(json.dumps(match))
     else:
         return None
 
-
-def get_redirect(path, IP):
+def get_redirect(path, client_ip, mirror_class=mirror, dl_map=DL_MAP):
     """ get redirect based on path and IP """
-    global mode
-    global dl_map
-    region = get_region(IP)
+    region = get_region(client_ip)
     split_path = path.split('/')
+
     if split_path[0] == "region":
-        if split_path[1] in mirror.all_regions():
+        if split_path[1] in mirror_class.all_regions():
             region = split_path[1]
         del split_path[0:2]
         path = "{}".format("/".join(split_path))
-    if mode == "dl_map" and len(split_path) == 2:
+
+    if mirror_class.mode == "dl_map" and len(split_path) == 2:
         key = "{}/{}".format(split_path[0], split_path[1])
         new_path = dl_map.get(key, path)
-        return "{}{}".format(mirror.next(region), new_path)
+        return "{}{}".format(mirror_class.next(region), new_path)
+
     if path == '':
-        return mirror.next(region)
-    return "{}{}".format(mirror.next(region), path)
+        return mirror_class.next(region)
+
+    return "{}{}".format(mirror_class.next(region), path)
 
 
-mirror = Mirror(load_mirrors())
-if mode == "dl_map":
-    parser = Parser('userdata.csv')
-    dl_map = parser.parsed_data
-
-reader = geolite2.reader()
-app = Flask(__name__)
-
-
-@ app.route('/status')
+@app.route('/status')
 def status():
     """ return health check status """
-    return "OK"
+    resp = Response("OK")
+    resp.headers['X-Client-IP'] = get_ip()
+    return resp
+
+# @app.route('/reload')
+# def signal_reload():
+#     """ trigger graceful reload via uWSGI """
+#     uwsgi.reload()
+#     return "reloaded"
 
 
-@ app.route('/reload')
-def signal_reload():
-    """ trigger graceful reload via uWSGI """
-    uwsgi.reload()
-    return "reloding"
-
-
-@ app.route('/mirrors')
+@app.route('/mirrors')
 def show_mirrors():
     """ return all_mirrors in json format to requestor """
     return json.dumps(mirror.all_mirrors())
 
 
-@ app.route('/regions')
+@app.route('/regions')
 def show_regions():
     """ return all_regions in json format to requestor """
     return json.dumps(mirror.all_regions())
 
 
-@ app.route('/dl_map')
-def show_dl_map():
-    global mode
-    global dl_map
-    if mode == "dl_map":
+@app.route('/dl_map')
+def show_dl_map(mirror_mode=mirror.mode, dl_map=DL_MAP):
+    """ returns a direct-download map """
+    if mirror_mode == "dl_map":
         return json.dumps(dl_map)
     return "no map. in direct mode"
 
 
-@ app.route('/geoip')
-def show_geoip():
+@app.route('/geoip')
+def show_geoip(reader=geolite_reader):
+    """ returns the geoip location of the client IP """
     return json.dumps(reader.get(get_ip()))
 
-@ app.route('/', defaults={'path': ''})
-@ app.route('/<path:path>')
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
 def catch_all(path):
     """ default app route for redirect """
     return redirect(get_redirect(path, get_ip()), 302)
