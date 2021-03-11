@@ -27,6 +27,7 @@ class Mirror():
         self.mode = config['mode']
         print("using mode: {}".format(self.mode))
         self.mirror_list = config.get('mirrors', {})
+        f.close()
         return self.mirror_list
 
     # set defaults to None in param list, then actually set inside
