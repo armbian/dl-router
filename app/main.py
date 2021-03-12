@@ -13,8 +13,21 @@ from geolite2 import geolite2
 from download_image_map import Parser
 from mirror_list import Mirror
 
+import sys
+mirror_path="mirrors.yaml"
+# list of managed options string
+options=["--mirror-conf"]
+# look on all provided command line parameters
+for param in sys.argv[1:]:
+    for opt in options:
+        if param.startswith(opt):
+            if opt=="--mirror-conf":
+                mirror_path=param[len(opt)+1:]
+            else:
+                print("Unhandled option",param)
+            break
 
-mirror = Mirror()
+mirror = Mirror(mirror_path)
 if mirror.mode == "dl_map":
     parser = Parser('userdata.csv')
     DL_MAP = parser.parsed_data
