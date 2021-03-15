@@ -2,7 +2,11 @@
 
 import json
 
-import uwsgi
+try:
+    import uwsgi
+except:
+    print("not running under uwsgi")
+
 from flask import (
         Flask,
         redirect,
