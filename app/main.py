@@ -17,8 +17,14 @@ from geolite2 import geolite2
 from download_image_map import Parser
 from mirror_list import Mirror
 
+import os
+mirror_path="mirrors.yaml"
+if "ARMBIAN_MIRROR_CONF" in os.environ:
+    mirror_path=os.environ["ARMBIAN_MIRROR_CONF"]
 
-mirror = Mirror()
+#print("Mirrors conf file:",mirror_path)
+
+mirror = Mirror(mirror_path)
 if mirror.mode == "dl_map":
     parser = Parser('userdata.csv')
     DL_MAP = parser.parsed_data

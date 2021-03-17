@@ -4,7 +4,8 @@ from ruamel.yaml import YAML
 
 class Mirror():
 
-    def __init__(self):
+    def __init__(self,mirror_path='mirrors.yaml'):
+        self.mirror_path=mirror_path
         self.load_mirrors()
         self._list_position = dict()
         self._list_max = dict()
@@ -22,7 +23,7 @@ class Mirror():
         yaml.indent(mapping=2, sequence=4, offset=2)
         yaml.preserve_quotes = True
 
-        with open('mirrors.yaml', 'r') as f:
+        with open(self.mirror_path, 'r') as f:
             config = yaml.load(f)
         self.mode = config['mode']
         print("using mode: {}".format(self.mode))
