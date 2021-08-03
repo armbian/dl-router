@@ -86,7 +86,7 @@ def get_redirect(path, client_ip, mirror_class=mirror, dl_map=DL_MAP):
     """ prepend scheme from client request if not given by mirror url
         allow schemes from 3 (ftp) to 5 (https) character length """
     mirror_url = mirror_class.next(region)
-    if mirror_url.find('://', 3, 8) == -1
+    if mirror_url.find('://', 3, 8) == -1:
         mirror_url = request.scheme + '://' + mirror_url
 
     if mirror_class.mode == "dl_map" and len(split_path) == 2:
