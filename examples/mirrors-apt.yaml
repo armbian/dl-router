@@ -2,13 +2,13 @@
 mode: redirect
 mirrors:
   AS:
-    - https://mirrors.tuna.tsinghua.edu.cn/armbian/
+    - mirrors.tuna.tsinghua.edu.cn/armbian/
   NA:
-    - https://armbian.tnahosting.net/apt/
-    - https://us.mirrors.fossho.st/armbian/apt/
+    - armbian.tnahosting.net/apt/
+    - us.mirrors.fossho.st/armbian/apt/
   EU:
     #    - https://minio.k-space.ee/armbian/apt/
-    - https://uk.mirrors.fossho.st/armbian/apt/
-    - https://armbian.systemonachip.net/apt/
-    - http://mirrors.netix.net/armbian/apt/
-    - https://mirrors.dotsrc.org/armbian-apt/
+    - uk.mirrors.fossho.st/armbian/apt/
+    - armbian.systemonachip.net/apt/
+    - mirrors.netix.net/armbian/apt/
+    - mirrors.dotsrc.org/armbian-apt/
