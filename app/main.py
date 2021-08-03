@@ -83,15 +83,21 @@ def get_redirect(path, client_ip, mirror_class=mirror, dl_map=DL_MAP):
         del split_path[0:2]
         path = "{}".format("/".join(split_path))
 
+    """ prepend scheme from client request if not given by mirror url
+        allow schemes from 3 (ftp) to 5 (https) character length """
+    mirror_url = mirror_class.next(region)
+    if mirror_url.find('://', 3, 8) == -1
+        mirror_url = request.scheme + '://' + mirror_url
+
     if mirror_class.mode == "dl_map" and len(split_path) == 2:
         key = "{}/{}".format(split_path[0], split_path[1])
         new_path = dl_map.get(key, path)
-        return "{}{}".format(mirror_class.next(region), new_path)
+        return "{}{}".format(mirror_url, new_path)
 
     if path == '':
-        return mirror_class.next(region)
+        return mirror_url
 
-    return "{}{}".format(mirror_class.next(region), path)
+    return "{}{}".format(mirror_url, path)
 
 
 @app.route('/status')
