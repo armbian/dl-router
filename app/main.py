@@ -117,8 +117,14 @@ def signal_reload():
 
 @app.route('/mirrors')
 def show_mirrors():
-    """ return all_mirrors in json format to requestor """
-    return json.dumps(mirror.all_mirrors())
+    """ return all_mirrors in json format to requestor
+    prepend http:// if no scheme is present """
+    mirror_list = mirror.all_mirrors()
+    for region in mirror_list.keys():
+        for i in range(len(mirror_list[region])):
+            if mirror_list[region][i].find('://', 3, 8) == -1:
+                mirror_list[region][i] = 'http://' + mirror_list[region][i]
+    return json.dumps(mirror_list)
 
 
 @app.route('/regions')
