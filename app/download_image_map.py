@@ -32,6 +32,7 @@ class Parser():
         with open(self.csv_file) as f:
             csvreader = csv.reader(f, delimiter='|')
             data = list(csvreader)
+            f.close()
         return data
 
     def get_data(self):
