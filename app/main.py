@@ -21,12 +21,16 @@ import os
 mirror_path="mirrors.yaml"
 if "ARMBIAN_MIRROR_CONF" in os.environ:
     mirror_path=os.environ["ARMBIAN_MIRROR_CONF"]
+print("Mirrors conf file:",mirror_path)
 
-#print("Mirrors conf file:",mirror_path)
+userdata_path="userdata.csv"
+if "ARMBIAN_USERDATA_CONF" in os.environ:
+    userdata_path=os.environ["ARMBIAN_USERDATA_CONF"]
+print("userdata conf file:",userdata_path)
 
 mirror = Mirror(mirror_path)
 if mirror.mode == "dl_map":
-    parser = Parser('userdata.csv')
+    parser = Parser(userdata_path)
     DL_MAP = parser.parsed_data
 else:
     DL_MAP = None
