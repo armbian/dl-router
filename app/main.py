@@ -47,12 +47,18 @@ app = Flask(__name__)
 #     return mirror
 
 def get_ip():
-    """ returns client IP by parsing proxy headers
-        if they don't exist, return the actual client IP address """
+    """ returns client IP by parsing proxy header
+        if it doesn't exist, returns the actual client IP address """
     return request.environ.get('HTTP_X_FORWARDED_FOR',
                                request.environ.get('REMOTE_ADDR'),
                               )
 
+def get_scheme():
+    """ returns request scheme by parsing proxy header
+        if it doesn't exist, returns the actual request scheme """
+    return request.environ.get('HTTP_X_FORWARDED_PROTO',
+                               request.scheme,
+                              )
 
 def get_region(client_ip, reader=geolite_reader, continents=mirror.continents):
     """ this is where we geoip and return region code """
@@ -91,7 +97,7 @@ def get_redirect(path, client_ip, mirror_class=mirror, dl_map=DL_MAP):
         allow schemes from 3 (ftp) to 5 (https) character length """
     mirror_url = mirror_class.next(region)
     if mirror_url.find('://', 3, 8) == -1:
-        mirror_url = request.scheme + '://' + mirror_url
+        mirror_url = get_scheme() + '://' + mirror_url
 
     if mirror_class.mode == "dl_map" and len(split_path) == 2:
         key = "{}/{}".format(split_path[0], split_path[1])
@@ -109,6 +115,7 @@ def status():
     """ return health check status """
     resp = Response("OK")
     resp.headers['X-Client-IP'] = get_ip()
+    resp.headers['X-Request-Scheme'] = get_scheme()
     return resp
 
 
