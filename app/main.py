@@ -1,6 +1,6 @@
 """ flask app to redirect request to appropriate armbian mirror and image """
 
-import json
+from json import dumps
 
 try:
     import uwsgi
@@ -17,19 +17,20 @@ from geolite2 import geolite2
 from download_image_map import Parser
 from mirror_list import Mirror
 
-import os
-mirror_path="mirrors.yaml"
-if "ARMBIAN_MIRROR_CONF" in os.environ:
-    mirror_path=os.environ["ARMBIAN_MIRROR_CONF"]
+from os import environ
+if "ARMBIAN_MIRROR_CONF" in environ:
+    mirror_path=environ["ARMBIAN_MIRROR_CONF"]
+else:
+    mirror_path="mirrors.yaml"
 print("Mirrors conf file:",mirror_path)
-
-userdata_path="userdata.csv"
-if "ARMBIAN_USERDATA_CONF" in os.environ:
-    userdata_path=os.environ["ARMBIAN_USERDATA_CONF"]
-print("userdata conf file:",userdata_path)
-
 mirror = Mirror(mirror_path)
+
 if mirror.mode == "dl_map":
+    if "ARMBIAN_USERDATA_CONF" in environ:
+        userdata_path=environ["ARMBIAN_USERDATA_CONF"]
+    else:
+        userdata_path="userdata.csv"
+    print("userdata conf file:",userdata_path)
     parser = Parser(userdata_path)
     DL_MAP = parser.parsed_data
 else:
@@ -78,7 +79,7 @@ def get_region(client_ip, reader=geolite_reader, continents=mirror.continents):
     # pylint: disable=broad-except
     except Exception as error_message:
         print(f"match failure for IP: {client_ip} (Error: {error_message}")
-        print(json.dumps(match))
+        print(dumps(match))
     else:
         return None
 
@@ -135,27 +136,27 @@ def show_mirrors():
         for i in range(len(mirror_list[region])):
             if mirror_list[region][i].find('://', 3, 8) == -1:
                 mirror_list[region][i] = 'http://' + mirror_list[region][i]
-    return json.dumps(mirror_list)
+    return dumps(mirror_list)
 
 
 @app.route('/regions')
 def show_regions():
     """ return all_regions in json format to requestor """
-    return json.dumps(mirror.all_regions())
+    return dumps(mirror.all_regions())
 
 
 @app.route('/dl_map')
 def show_dl_map(mirror_mode=mirror.mode, dl_map=DL_MAP):
     """ returns a direct-download map """
     if mirror_mode == "dl_map":
-        return json.dumps(dl_map)
+        return dumps(dl_map)
     return "no map. in direct mode"
 
 
 @app.route('/geoip')
 def show_geoip(reader=geolite_reader):
     """ returns the geoip location of the client IP """
-    return json.dumps(reader.get(get_ip()))
+    return dumps(reader.get(get_ip()))
 
 
 @app.route('/', defaults={'path': ''})
