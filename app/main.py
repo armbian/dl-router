@@ -163,7 +163,9 @@ def show_geoip(reader=geolite_reader):
 @app.route('/<path:path>')
 def catch_all(path):
     """ default app route for redirect """
-    return redirect(get_redirect(path, get_ip()), 302)
+    resp = redirect(get_redirect(path, get_ip()), 302)
+    resp.headers['X-Request-Scheme'] = get_scheme()
+    return resp
 
 
 if __name__ == "__main__":
