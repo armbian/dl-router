@@ -83,7 +83,7 @@ def get_region(client_ip, reader=geolite_reader, continents=mirror.continents):
     else:
         return None
 
-def get_redirect(path, client_ip, mirror_class=mirror, dl_map=DL_MAP):
+def get_redirect(path, client_ip, scheme, mirror_class=mirror, dl_map=DL_MAP):
     """ get redirect based on path and IP """
     region = get_region(client_ip)
     split_path = path.split('/')
@@ -98,7 +98,7 @@ def get_redirect(path, client_ip, mirror_class=mirror, dl_map=DL_MAP):
         allow schemes from 3 (ftp) to 5 (https) character length """
     mirror_url = mirror_class.next(region)
     if mirror_url.find('://', 3, 8) == -1:
-        mirror_url = get_scheme() + '://' + mirror_url
+        mirror_url = scheme + '://' + mirror_url
 
     if mirror_class.mode == "dl_map" and len(split_path) == 2:
         key = "{}/{}".format(split_path[0], split_path[1])
@@ -163,7 +163,7 @@ def show_geoip(reader=geolite_reader):
 @app.route('/<path:path>')
 def catch_all(path):
     """ default app route for redirect """
-    resp = redirect(get_redirect(path, get_ip()), 302)
+    resp = redirect(get_redirect(path, get_ip(), get_scheme()), 302)
     resp.headers['X-Request-Scheme'] = get_scheme()
     return resp
 
