@@ -165,6 +165,7 @@ def catch_all(path):
     """ default app route for redirect """
     resp = redirect(get_redirect(path, get_ip(), get_scheme()), 302)
     resp.headers['X-Request-Scheme'] = get_scheme()
+
     return resp
 
 
