@@ -1,6 +1,7 @@
 """ flask app to redirect request to appropriate armbian mirror and image """
 
 from json import dumps
+from urllib.parse import urlsplit
 
 try:
     import uwsgi
@@ -97,7 +98,10 @@ def get_redirect(path, client_ip, scheme, mirror_class=mirror, dl_map=DL_MAP):
     """ prepend scheme from client request if not given by mirror url
         allow schemes from 3 (ftp) to 5 (https) character length """
     mirror_url = mirror_class.next(region)
-    if mirror_url.find('://', 3, 8) == -1:
+    mirror_url_parsed = urlsplit(mirror_url, allow_fragments=True)
+    mirror_scheme = mirror_url_parsed.scheme
+    print(f"thing {mirror_scheme}")
+    if not mirror_scheme:
         mirror_url = scheme + '://' + mirror_url
 
     if mirror_class.mode == "dl_map" and len(split_path) == 2:

@@ -21,6 +21,7 @@ def test_get_redirect(mocker, path):
             repos = [
                 'example.com/repo/',
                 'exampler2.com/nested/repo/',
+                'exampler3.com/wild/repo/'
             ]
             self.choice = random.choice(repos)
             return self.choice
