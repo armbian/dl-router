@@ -12,3 +12,5 @@ mirrors:
     - armbian.systemonachip.net/apt/
     - mirrors.netix.net/armbian/apt/
     - mirrors.dotsrc.org/armbian-apt/
+  SEALAND:
+    - example.com/repo/

@@ -1,5 +1,4 @@
 flask
-uwsgi
 python-dotenv
 ruamel.yaml
 maxminddb
