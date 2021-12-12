@@ -80,7 +80,6 @@ def get_region(client_ip, reader=geolite_reader, continents=mirror.continents):
     # pylint: disable=broad-except
     except Exception as error_message:
         print(f"match failure for IP: {client_ip} (Error: {error_message}")
-        print(dumps(match))
     else:
         return None
 
